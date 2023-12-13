@@ -1,0 +1,137 @@
+#include <iostream>
+using namespace std;
+const int max_stduents = 100;
+
+struct student
+{
+  string name;
+  int id;
+  float grade;
+};
+
+student main_queue[max_stduents];
+int rear1 = -1, front1 = -1;
+
+student pass_queue[max_stduents];
+int rear2 = -1, front2 = -1;
+
+student fail_queue[max_stduents];
+int rear3 = -1, front3 = -1;
+
+void enqueue(student qeue[], int &front, int &rear, const student &std)
+{
+  if (rear != max_stduents - 1)
+  {
+    if (front == -1 && rear == -1)
+    {
+      front++;
+      rear++;
+      qeue[rear] = std;
+    }
+    else
+    {
+      rear++;
+      qeue[rear] = std;
+    }
+  }
+  else
+  {
+    cout << "can't add another student\n";
+  }
+}
+
+float calc_avg(student main_queue[], int size)
+{
+  if (size == 0)
+    return 0.;
+
+  float total = 0;
+
+  for (int i = 0; i < size; i++)
+  {
+    total += main_queue[i].grade;
+  }
+  return total / size;
+}
+
+void separate_students(student main_queue[],
+                       int size,
+                       student pass_queue[],
+                       int &pass_size,
+                       student fail_queue[],
+                       int &fail_size)
+{
+  pass_size = 0, fail_size = 0;
+
+  for (int i = 0; i < size; i++)
+  {
+    if (main_queue[i].grade > 50)
+    {
+      enqueue(pass_queue, front2, rear2, main_queue[i]);
+      pass_size++;
+    }
+    else
+    {
+      enqueue(fail_queue, front3, rear3, main_queue[i]);
+      fail_size++;
+    }
+  }
+}
+
+float pass_avg(student pass_queue[], int pass_size)
+{
+  return calc_avg(pass_queue, pass_size);
+}
+
+void display(student queue[], int size)
+{
+  for (int i = 0; i < size; i++)
+  {
+    cout << "ID: " << queue[i].id << ", Name: " << queue[i].name << ", Grade: " << queue[i].grade << endl;
+  }
+  cout << endl;
+}
+
+int main()
+{
+  int num_students;
+  cout << "Enter the Number of students (maximum 100)\n";
+  cin >> num_students;
+
+  if (num_students <= 0 || num_students > max_stduents)
+  {
+    cout << "Invalid number of students\n";
+    return 0;
+  }
+
+  for (int i = 0; i < num_students; i++)
+  {
+    student new_student;
+    cout << "Enter details for student " << i + 1 << ":\n";
+    cout << "Enter the ID: ";
+    cin >> new_student.id;
+    cout << "Enter the name: ";
+    cin >> new_student.name;
+    cout << "Enter the grade: ";
+    cin >> new_student.grade;
+    enqueue(main_queue, front1, rear1, new_student);
+  }
+
+  float average = calc_avg(main_queue, num_students);
+  cout << "The average of all students is: " << average << endl;
+
+  int pass_size, fail_size;
+  separate_students(main_queue, num_students, pass_queue, pass_size, fail_queue, fail_size);
+
+  float passAvg = pass_avg(pass_queue, pass_size);
+  cout << "The average of passed students is: " << passAvg << endl;
+
+  cout << "All Students: \n";
+  display(main_queue, num_students);
+
+  cout << "passed Students: \n";
+  display(pass_queue, pass_size);
+
+  cout << "failed Students: \n";
+  display(fail_queue, fail_size);
+}
